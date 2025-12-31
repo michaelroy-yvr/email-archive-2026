@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(brew upgrade:*)",
+      "Bash(npm install:*)",
+      "Bash(cat:*)",
+      "Bash(timeout 5 npm start)",
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(node test-pipeline.js:*)",
+      "Bash(pkill:*)",
+      "Bash(npx create-react-app:*)",
+      "Bash(node migrate-images-table.js:*)",
+      "Bash(node -e:*)",
+      "Bash(node bulk-sync.js:*)",
+      "Bash(node src/app.js:*)",
+      "Bash(npm start)",
+      "Bash(node:*)",
+      "Bash(git init:*)"
+    ]
+  }
+}
