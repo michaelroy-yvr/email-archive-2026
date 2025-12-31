@@ -1,4 +1,5 @@
 const db = require('../config/database');
+const { highlightSearchResults } = require('../utils/searchHighlight');
 
 /**
  * List emails with pagination and filters
@@ -46,8 +47,18 @@ exports.list = async (req, res, next) => {
             params.push(`%${req.query.from}%`, `%${req.query.from}%`);
         }
 
-        // Search in subject
-        if (req.query.search) {
+        // Full-text search using FTS5
+        if (req.query.fulltext) {
+            // Use FTS5 for full-text search across subject, body, and sender
+            whereClause.push(`e.id IN (
+                SELECT rowid FROM emails_fts
+                WHERE emails_fts MATCH ?
+                ORDER BY rank
+            )`);
+            params.push(req.query.fulltext);
+        }
+        // Fallback to simple LIKE search in subject only
+        else if (req.query.search) {
             whereClause.push('e.subject LIKE ?');
             params.push(`%${req.query.search}%`);
         }
@@ -55,7 +66,7 @@ exports.list = async (req, res, next) => {
         const where = whereClause.length > 0 ? 'WHERE ' + whereClause.join(' AND ') : '';
 
         // Get emails
-        const emails = db.all(`
+        let emails = db.all(`
             SELECT
                 e.id,
                 e.gmail_message_id,
@@ -65,6 +76,7 @@ exports.list = async (req, res, next) => {
                 e.date_received,
                 e.has_images,
                 e.images_downloaded,
+                e.text_content,
                 o.name as organization_name,
                 o.type as organization_type,
                 COUNT(DISTINCT i.id) as image_count
@@ -76,6 +88,36 @@ exports.list = async (req, res, next) => {
             ORDER BY e.date_received DESC
             LIMIT ? OFFSET ?
         `, [...params, limit, offset]);
+
+        // Generate snippets for all emails
+        emails = emails.map(email => {
+            let snippet;
+
+            if (req.query.fulltext) {
+                // Use highlighting for search results
+                snippet = highlightSearchResults(
+                    email.text_content || email.subject,
+                    req.query.fulltext,
+                    150
+                );
+            } else {
+                // Generate plain snippet from text content
+                const text = email.text_content || email.subject || '';
+                if (text.length > 150) {
+                    snippet = text.substring(0, 150).trim() + '...';
+                } else {
+                    snippet = text;
+                }
+            }
+
+            // Remove text_content from response to reduce payload size
+            const { text_content, ...emailWithoutText } = email;
+
+            return {
+                ...emailWithoutText,
+                snippet
+            };
+        });
 
         // Get total count
         const totalResult = db.get(`
