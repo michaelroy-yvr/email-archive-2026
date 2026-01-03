@@ -19,6 +19,10 @@ router.get('/analytics/growth', analyticsController.getGrowthStats);
 router.get('/analytics/by-organization', analyticsController.getOrganizationDistribution);
 router.get('/analytics/unassigned', analyticsController.getUnassignedCount);
 router.get('/analytics/storage', analyticsController.getStorageAnalytics);
+router.get('/analytics/filtered', analyticsController.getFilteredAnalytics);
+
+// Update email category
+router.patch('/:id/category', emailController.updateCategory);
 
 // Get single email by ID
 router.get('/:id', emailController.getById);

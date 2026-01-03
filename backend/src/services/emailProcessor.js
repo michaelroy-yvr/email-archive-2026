@@ -2,12 +2,14 @@ const db = require('../config/database');
 const ImageDownloader = require('./imageDownloader');
 const HtmlRewriter = require('./htmlRewriter');
 const EmailDomainExtractor = require('../utils/emailDomainExtractor');
+const EmailClassifier = require('./emailClassifier');
 
 class EmailProcessor {
     constructor() {
         this.imageDownloader = new ImageDownloader(process.env.STORAGE_ROOT);
         this.htmlRewriter = new HtmlRewriter(process.env.IMAGE_BASE_URL);
         this.domainExtractor = new EmailDomainExtractor();
+        this.classifier = new EmailClassifier();
     }
 
     /**
@@ -37,7 +39,10 @@ class EmailProcessor {
             const emailId = await this.saveEmail(emailData);
             console.log(`Saved email to database (ID: ${emailId})`);
 
-            // 3. Download images (if HTML content exists)
+            // 3. Classify email content
+            await this.classifyEmail(emailId, emailData.subject, emailData.textContent);
+
+            // 4. Download images (if HTML content exists)
             if (emailData.htmlContent) {
                 console.log('Downloading images...');
                 const imageResults = await this.imageDownloader.downloadEmailImages(
@@ -45,17 +50,17 @@ class EmailProcessor {
                     emailData.htmlContent
                 );
 
-                // 4. Save image metadata to database
+                // 5. Save image metadata to database
                 const imageMapping = await this.saveImages(emailId, imageResults);
 
-                // 5. Rewrite HTML with local image URLs and disabled unsubscribe links
+                // 6. Rewrite HTML with local image URLs and disabled unsubscribe links
                 console.log('Rewriting HTML...');
                 const rewrittenHtml = this.htmlRewriter.rewriteHtml(
                     emailData.htmlContent,
                     imageMapping
                 );
 
-                // 6. Update email with rewritten HTML
+                // 7. Update email with rewritten HTML
                 await this.updateEmailHtml(emailId, rewrittenHtml, imageResults);
 
                 console.log(`✓ Email ${emailId} processed successfully`);
@@ -270,6 +275,46 @@ class EmailProcessor {
             successCount === totalCount ? 1 : 0,
             emailId
         ]);
+    }
+
+    /**
+     * Classify email and update database with classification results
+     * @param {number} emailId - Email ID
+     * @param {string} subject - Email subject
+     * @param {string} textContent - Email text content
+     */
+    async classifyEmail(emailId, subject, textContent) {
+        try {
+            console.log('Classifying email...');
+
+            // Classify the email
+            const classification = await this.classifier.classifyEmail(subject, textContent);
+
+            // Update database with classification results
+            db.run(`
+                UPDATE emails
+                SET category = ?,
+                    is_graphic_email = ?,
+                    has_donation_matching = ?,
+                    is_supporter_record = ?,
+                    classified_at = CURRENT_TIMESTAMP,
+                    classification_confidence = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            `, [
+                classification.category,
+                classification.is_graphic_email,
+                classification.has_donation_matching,
+                classification.is_supporter_record,
+                classification.confidence,
+                emailId
+            ]);
+
+            console.log(`✓ Email classified as: ${classification.category} (confidence: ${classification.confidence})`);
+        } catch (error) {
+            console.error(`Error classifying email ${emailId}:`, error.message);
+            // Don't throw - classification failure shouldn't stop email processing
+        }
     }
 
     /**

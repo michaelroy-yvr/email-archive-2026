@@ -5,6 +5,9 @@ const organizationController = require('../controllers/organizationController');
 // List all organizations
 router.get('/', organizationController.list);
 
+// Get organization statistics
+router.get('/:id/stats', organizationController.getStats);
+
 // Create a new organization
 router.post('/', organizationController.create);
 

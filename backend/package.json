@@ -8,18 +8,26 @@
     "dev": "nodemon src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["email", "archive", "gmail"],
+  "keywords": [
+    "email",
+    "archive",
+    "gmail"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
     "axios": "^1.13.2",
+    "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.5.0",
     "cheerio": "^1.1.2",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "googleapis": "^169.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "openai": "^6.15.0",
     "sharp": "^0.34.5"
   },
   "devDependencies": {

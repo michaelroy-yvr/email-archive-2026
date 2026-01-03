@@ -186,3 +186,164 @@ exports.getStorageAnalytics = async (req, res, next) => {
         next(error);
     }
 };
+
+/**
+ * Get filtered analytics data
+ * Supports filters: organizationIds[], organizationType, startDate, endDate
+ */
+exports.getFilteredAnalytics = async (req, res, next) => {
+    try {
+        const {
+            organizationIds, // comma-separated or array
+            organizationType,
+            startDate,
+            endDate
+        } = req.query;
+
+        // Build WHERE clause based on filters
+        let whereClause = [];
+        let params = [];
+
+        // Organization IDs filter (multi-select)
+        if (organizationIds) {
+            const ids = Array.isArray(organizationIds)
+                ? organizationIds
+                : organizationIds.split(',').map(id => id.trim());
+
+            if (ids.length > 0) {
+                const placeholders = ids.map(() => '?').join(',');
+                whereClause.push(`e.organization_id IN (${placeholders})`);
+                params.push(...ids);
+            }
+        }
+
+        // Organization type filter
+        if (organizationType) {
+            whereClause.push('o.type = ?');
+            params.push(organizationType);
+        }
+
+        // Date range filters
+        if (startDate) {
+            whereClause.push('e.date_received >= ?');
+            params.push(startDate);
+        }
+
+        if (endDate) {
+            whereClause.push('e.date_received <= ?');
+            params.push(endDate);
+        }
+
+        const where = whereClause.length > 0
+            ? 'WHERE ' + whereClause.join(' AND ')
+            : '';
+
+        // 1. Total message count
+        const totalCount = db.get(`
+            SELECT COUNT(*) as count
+            FROM emails e
+            LEFT JOIN organizations o ON e.organization_id = o.id
+            ${where}
+        `, params);
+
+        // 2. Count by sender address (grouped by email address)
+        const bySender = db.all(`
+            SELECT
+                e.from_address,
+                COUNT(DISTINCT e.from_name) as name_count,
+                GROUP_CONCAT(DISTINCT e.from_name) as sender_names,
+                COUNT(*) as count
+            FROM emails e
+            LEFT JOIN organizations o ON e.organization_id = o.id
+            ${where}
+            GROUP BY e.from_address
+            ORDER BY count DESC
+            LIMIT 20
+        `, params);
+
+        // 3. Count by year
+        const byYear = db.all(`
+            SELECT
+                strftime('%Y', e.date_received) as year,
+                COUNT(*) as count
+            FROM emails e
+            LEFT JOIN organizations o ON e.organization_id = o.id
+            ${where}
+            GROUP BY year
+            ORDER BY year ASC
+        `, params);
+
+        // 4. Count by month (last 12 months or filtered range)
+        const byMonth = db.all(`
+            SELECT
+                strftime('%Y-%m', e.date_received) as month,
+                COUNT(*) as count
+            FROM emails e
+            LEFT JOIN organizations o ON e.organization_id = o.id
+            ${where}
+            GROUP BY month
+            ORDER BY month ASC
+        `, params);
+
+        // 5. Count by day (last 30 days or filtered range)
+        const byDay = db.all(`
+            SELECT
+                DATE(e.date_received) as day,
+                COUNT(*) as count
+            FROM emails e
+            LEFT JOIN organizations o ON e.organization_id = o.id
+            ${where}
+            GROUP BY day
+            ORDER BY day DESC
+            LIMIT 30
+        `, params);
+
+        // Reverse to show oldest first
+        byDay.reverse();
+
+        // 6. Count by organization (only if multiple orgs selected or no org filter)
+        const byOrganization = db.all(`
+            SELECT
+                o.id,
+                o.name,
+                o.type,
+                COUNT(e.id) as count
+            FROM emails e
+            LEFT JOIN organizations o ON e.organization_id = o.id
+            ${where}
+            GROUP BY o.id, o.name, o.type
+            HAVING o.id IS NOT NULL
+            ORDER BY count DESC
+            LIMIT 20
+        `, params);
+
+        // 7. Date range of filtered results
+        const dateRange = db.get(`
+            SELECT
+                MIN(e.date_received) as first_email,
+                MAX(e.date_received) as last_email
+            FROM emails e
+            LEFT JOIN organizations o ON e.organization_id = o.id
+            ${where}
+        `, params);
+
+        res.json({
+            totalCount: totalCount.count,
+            bySender,
+            byYear,
+            byMonth,
+            byDay,
+            byOrganization,
+            dateRange,
+            appliedFilters: {
+                organizationIds: organizationIds || null,
+                organizationType: organizationType || null,
+                startDate: startDate || null,
+                endDate: endDate || null
+            }
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};

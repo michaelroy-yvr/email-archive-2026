@@ -30,6 +30,25 @@ exports.list = async (req, res, next) => {
             params.push(req.query.organizationType);
         }
 
+        // Filter by email category
+        if (req.query.category) {
+            whereClause.push('e.category = ?');
+            params.push(req.query.category);
+        }
+
+        // Filter by tags
+        if (req.query.isGraphicEmail === 'true') {
+            whereClause.push('e.is_graphic_email = 1');
+        }
+
+        if (req.query.hasDonationMatching === 'true') {
+            whereClause.push('e.has_donation_matching = 1');
+        }
+
+        if (req.query.isSupporterRecord === 'true') {
+            whereClause.push('e.is_supporter_record = 1');
+        }
+
         // Filter by date range
         if (req.query.startDate) {
             whereClause.push('e.date_received >= ?');
@@ -77,6 +96,11 @@ exports.list = async (req, res, next) => {
                 e.has_images,
                 e.images_downloaded,
                 e.text_content,
+                e.category,
+                e.is_graphic_email,
+                e.has_donation_matching,
+                e.is_supporter_record,
+                e.classification_confidence,
                 o.name as organization_name,
                 o.type as organization_type,
                 COUNT(DISTINCT i.id) as image_count
@@ -209,19 +233,55 @@ exports.getHtml = async (req, res, next) => {
 };
 
 /**
+ * Update email category (manual reclassification)
+ */
+exports.updateCategory = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { category } = req.body;
+
+        // Validate category
+        const validCategories = ['fundraising', 'event', 'newsletter', 'share', 'action', 'other', null];
+        if (!validCategories.includes(category)) {
+            return res.status(400).json({
+                error: 'Invalid category. Must be one of: fundraising, event, newsletter, share, action, other, or null'
+            });
+        }
+
+        // Update the category
+        db.run(`
+            UPDATE emails
+            SET category = ?,
+                classification_confidence = 1.0,
+                classified_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `, [category, id]);
+
+        res.json({
+            message: 'Category updated successfully',
+            category
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
  * Get unique senders
  */
 exports.getSenders = async (req, res, next) => {
     try {
         const senders = db.all(`
-            SELECT DISTINCT
+            SELECT
                 from_address,
-                from_name,
+                COUNT(DISTINCT from_name) as name_count,
+                GROUP_CONCAT(DISTINCT from_name) as sender_names,
                 COUNT(*) as email_count
             FROM emails
             WHERE organization_id IS NULL
             GROUP BY from_address
-            ORDER BY email_count DESC, from_name ASC
+            ORDER BY email_count DESC
         `);
 
         res.json(senders);
@@ -250,8 +310,8 @@ exports.getStats = async (req, res, next) => {
             `),
             topSenders: db.all(`
                 SELECT
-                    from_name,
                     from_address,
+                    COUNT(DISTINCT from_name) as name_count,
                     COUNT(*) as count
                 FROM emails
                 GROUP BY from_address

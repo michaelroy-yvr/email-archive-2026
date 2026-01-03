@@ -22,6 +22,74 @@ exports.list = async (req, res, next) => {
 };
 
 /**
+ * Get organization statistics and insights
+ */
+exports.getStats = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        // Get organization details
+        const organization = db.get(`
+            SELECT
+                o.*,
+                COUNT(e.id) as email_count
+            FROM organizations o
+            LEFT JOIN emails e ON o.id = e.organization_id
+            WHERE o.id = ?
+            GROUP BY o.id
+        `, [id]);
+
+        if (!organization) {
+            return res.status(404).json({ error: 'Organization not found' });
+        }
+
+        // Get top senders for this organization
+        const topSenders = db.all(`
+            SELECT
+                from_address,
+                COUNT(DISTINCT from_name) as name_count,
+                GROUP_CONCAT(DISTINCT from_name) as sender_names,
+                COUNT(*) as count
+            FROM emails
+            WHERE organization_id = ?
+            GROUP BY from_address
+            ORDER BY count DESC
+            LIMIT 10
+        `, [id]);
+
+        // Get email timeline (by month)
+        const timeline = db.all(`
+            SELECT
+                strftime('%Y-%m', date_received) as month,
+                COUNT(*) as count
+            FROM emails
+            WHERE organization_id = ?
+            GROUP BY month
+            ORDER BY month DESC
+            LIMIT 12
+        `, [id]);
+
+        // Get date range
+        const dateRange = db.get(`
+            SELECT
+                MIN(date_received) as first_email,
+                MAX(date_received) as last_email
+            FROM emails
+            WHERE organization_id = ?
+        `, [id]);
+
+        res.json({
+            organization,
+            topSenders,
+            timeline: timeline.reverse(), // Oldest first for chart
+            dateRange
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
  * Create a new organization
  */
 exports.create = async (req, res, next) => {
