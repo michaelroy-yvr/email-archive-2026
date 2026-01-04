@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const emailController = require('../controllers/emailController');
 const analyticsController = require('../controllers/analyticsController');
+const { authMiddleware } = require('../middleware/auth');
 
 // List emails with pagination and filters
 // GET /api/emails?page=1&limit=50&from=trump&search=patriot
@@ -24,10 +25,13 @@ router.get('/analytics/filtered', analyticsController.getFilteredAnalytics);
 // Update email category
 router.patch('/:id/category', emailController.updateCategory);
 
-// Get single email by ID
-router.get('/:id', emailController.getById);
+// Remove tag from email (admin only) - MUST be before /:id route
+router.delete('/:id/tag', authMiddleware, emailController.removeTag);
 
-// Get email HTML content for iframe
+// Get email HTML content for iframe - MUST be before /:id route
 router.get('/:id/html', emailController.getHtml);
+
+// Get single email by ID - Keep this last among /:id routes
+router.get('/:id', emailController.getById);
 
 module.exports = router;

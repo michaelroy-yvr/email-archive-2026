@@ -268,6 +268,49 @@ exports.updateCategory = async (req, res, next) => {
 };
 
 /**
+ * Remove tag from email (admin only)
+ */
+exports.removeTag = async (req, res, next) => {
+    try {
+        console.log('removeTag called - params:', req.params);
+        console.log('removeTag called - body:', req.body);
+        console.log('removeTag called - user:', req.user);
+
+        const { id } = req.params;
+        const { tag } = req.body;
+
+        // Check if user is admin (optional - could also be added as middleware)
+        if (!req.user || !req.user.isAdmin) {
+            console.log('Admin access denied - user:', req.user);
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        // Validate tag
+        const validTags = ['is_graphic_email', 'has_donation_matching', 'is_supporter_record'];
+        if (!validTags.includes(tag)) {
+            console.log('Invalid tag:', tag);
+            return res.status(400).json({ error: 'Invalid tag' });
+        }
+
+        console.log('Removing tag:', tag, 'from email:', id);
+
+        // Remove the tag by setting it to 0
+        db.run(`
+            UPDATE emails
+            SET ${tag} = 0,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `, [id]);
+
+        console.log('Tag removed successfully');
+        res.json({ message: 'Tag removed successfully' });
+    } catch (error) {
+        console.error('Error in removeTag:', error);
+        next(error);
+    }
+};
+
+/**
  * Get unique senders
  */
 exports.getSenders = async (req, res, next) => {
