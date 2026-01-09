@@ -1,0 +1,53 @@
+# syntax=docker/dockerfile:1
+
+###############
+# 1) Build frontend
+###############
+FROM node:20-bookworm-slim AS frontend-build
+WORKDIR /app/frontend
+
+COPY frontend/package*.json ./
+RUN npm ci
+
+COPY frontend/ ./
+RUN npm run build
+
+###############
+# 2) Build backend (and install deps incl. better-sqlite3)
+###############
+FROM node:20-bookworm-slim AS backend-build
+WORKDIR /app/backend
+
+COPY backend/package*.json ./
+RUN npm ci --omit=dev
+
+COPY backend/ ./
+
+# Copy React build into backend/public
+RUN mkdir -p /app/backend/public
+COPY --from=frontend-build /app/frontend/build /app/backend/public
+
+###############
+# 3) Runtime image
+###############
+FROM node:20-bookworm-slim AS runtime
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=8080
+
+# Create a non-root user (recommended)
+RUN useradd -m appuser
+
+# Copy built backend (with node_modules) into runtime
+COPY --from=backend-build /app/backend /app
+
+# SQLite DB should live on a mounted volume at runtime
+RUN mkdir -p /data && chown -R appuser:appuser /data && chown -R appuser:appuser /app
+
+USER appuser
+
+EXPOSE 8080
+CMD ["node", "index.js"]
+
+

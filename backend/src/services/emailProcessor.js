@@ -167,10 +167,15 @@ class EmailProcessor {
                 return null;
             }
 
+            // Use case-insensitive comparison for domain matching
             const organization = db.get(
-                'SELECT id FROM organizations WHERE email_domain = ? LIMIT 1',
+                'SELECT id FROM organizations WHERE LOWER(email_domain) = LOWER(?) LIMIT 1',
                 [domain]
             );
+
+            if (organization) {
+                console.log(`✓ Auto-assigned to organization ID ${organization.id} based on domain: ${domain}`);
+            }
 
             return organization ? organization.id : null;
         } catch (error) {

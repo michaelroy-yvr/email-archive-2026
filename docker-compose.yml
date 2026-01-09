@@ -1,0 +1,32 @@
+services:
+  emailarchive:
+    build: .
+    container_name: emailarchive
+    environment:
+      PORT: "3001"
+      NODE_ENV: "production"
+
+      # IMPORTANT: use your real values in Coolify env UI
+      FRONTEND_URL: "https://emailarchive.michaelroy.ca"
+      JWT_SECRET: "${JWT_SECRET}"
+
+      GMAIL_CLIENT_ID: "${GMAIL_CLIENT_ID}"
+      GMAIL_CLIENT_SECRET: "${GMAIL_CLIENT_SECRET}"
+      GMAIL_REDIRECT_URI: "https://emailarchive.michaelroy.ca/api/auth/gmail/callback"
+
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
+
+    volumes:
+      # Persist SQLite + images
+      - emailarchive_storage:/app/backend/storage
+      # Persist Gmail oauth tokens file
+      - emailarchive_config:/app/backend/config
+
+    # internal only; Coolify proxy will route to this container port
+    expose:
+      - "3001"
+
+volumes:
+  emailarchive_storage:
+  emailarchive_config:
+

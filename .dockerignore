@@ -1,0 +1,15 @@
+**/node_modules
+**/build
+**/.cache
+**/.DS_Store
+.git
+.gitignore
+npm-debug.log
+Dockerfile
+docker-compose.yml
+README.md
+.claude
+backup.sh
+/docs
+**/logs
+**/storage

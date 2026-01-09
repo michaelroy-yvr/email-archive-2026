@@ -84,7 +84,7 @@ exports.list = async (req, res, next) => {
 
         const where = whereClause.length > 0 ? 'WHERE ' + whereClause.join(' AND ') : '';
 
-        // Get emails
+        // Get emails (image_count removed for performance - not displayed in UI anyway)
         let emails = db.all(`
             SELECT
                 e.id,
@@ -102,13 +102,10 @@ exports.list = async (req, res, next) => {
                 e.is_supporter_record,
                 e.classification_confidence,
                 o.name as organization_name,
-                o.type as organization_type,
-                COUNT(DISTINCT i.id) as image_count
+                o.type as organization_type
             FROM emails e
             LEFT JOIN organizations o ON e.organization_id = o.id
-            LEFT JOIN images i ON e.id = i.email_id AND i.download_success = 1
             ${where}
-            GROUP BY e.id
             ORDER BY e.date_received DESC
             LIMIT ? OFFSET ?
         `, [...params, limit, offset]);
@@ -145,9 +142,9 @@ exports.list = async (req, res, next) => {
 
         // Get total count
         const totalResult = db.get(`
-            SELECT COUNT(DISTINCT e.id) as total
+            SELECT COUNT(*) as total
             FROM emails e
-            LEFT JOIN organizations o ON e.organization_id = o.id
+            ${where.includes('o.type') ? 'LEFT JOIN organizations o ON e.organization_id = o.id' : ''}
             ${where}
         `, params);
 
@@ -364,6 +361,31 @@ exports.getStats = async (req, res, next) => {
         };
 
         res.json(stats);
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * Delete an email
+ */
+exports.deleteEmail = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        // Check if email exists
+        const email = db.get('SELECT * FROM emails WHERE id = ?', [id]);
+        if (!email) {
+            return res.status(404).json({ error: 'Email not found' });
+        }
+
+        // Delete the email (images will be cascade deleted due to foreign key)
+        db.run('DELETE FROM emails WHERE id = ?', [id]);
+
+        res.json({
+            message: 'Email deleted successfully',
+            emailId: parseInt(id)
+        });
     } catch (error) {
         next(error);
     }

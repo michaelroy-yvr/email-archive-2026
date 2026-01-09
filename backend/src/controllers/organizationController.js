@@ -1,24 +1,51 @@
 const db = require('../config/database');
 
+// Simple in-memory cache for organizations list
+let organizationsCache = null;
+let cacheExpiry = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 /**
- * List all organizations
+ * List all organizations (with 5-minute cache)
  */
 exports.list = async (req, res, next) => {
     try {
+        const now = Date.now();
+
+        // Return cached data if still valid
+        if (organizationsCache && now < cacheExpiry) {
+            return res.json(organizationsCache);
+        }
+
+        // Fetch fresh data
         const organizations = db.all(`
             SELECT
                 o.*,
-                COUNT(e.id) as email_count
+                COUNT(e.id) as email_count,
+                MIN(e.date_received) as first_email,
+                MAX(e.date_received) as last_email
             FROM organizations o
             LEFT JOIN emails e ON o.id = e.organization_id
             GROUP BY o.id
             ORDER BY o.name ASC
         `);
 
+        // Update cache
+        organizationsCache = organizations;
+        cacheExpiry = now + CACHE_TTL;
+
         res.json(organizations);
     } catch (error) {
         next(error);
     }
+};
+
+/**
+ * Clear organizations cache (call this when organizations are created/updated/deleted)
+ */
+exports.clearCache = () => {
+    organizationsCache = null;
+    cacheExpiry = 0;
 };
 
 /**
@@ -119,6 +146,9 @@ exports.create = async (req, res, next) => {
             [result.lastID]
         );
 
+        // Clear cache when organization is created
+        exports.clearCache();
+
         res.status(201).json(organization);
     } catch (error) {
         next(error);
@@ -158,6 +188,10 @@ exports.update = async (req, res, next) => {
         `, [name, email_domain, type, notes, id]);
 
         const organization = db.get('SELECT * FROM organizations WHERE id = ?', [id]);
+
+        // Clear cache when organization is updated
+        exports.clearCache();
+
         res.json(organization);
     } catch (error) {
         next(error);
@@ -276,6 +310,9 @@ exports.delete = async (req, res, next) => {
 
         // Delete the organization
         db.run('DELETE FROM organizations WHERE id = ?', [id]);
+
+        // Clear cache when organization is deleted
+        exports.clearCache();
 
         res.json({ message: 'Organization deleted successfully' });
     } catch (error) {

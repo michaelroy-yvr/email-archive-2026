@@ -16,7 +16,16 @@
       "Bash(node src/app.js:*)",
       "Bash(npm start)",
       "Bash(node:*)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(sqlite3:*)",
+      "Bash(ls:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Bash(npm uninstall:*)",
+      "Bash(git reset:*)",
+      "Bash(lsof:*)",
+      "Bash(npm run dev:*)"
     ]
   }
 }

@@ -1,0 +1,15 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      # Set this to wherever your backend expects the sqlite file path:
+      - SQLITE_PATH=/data/app.db
+    volumes:
+      - sqlite_data:/data
+
+volumes:
+  sqlite_data:

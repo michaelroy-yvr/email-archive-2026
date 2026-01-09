@@ -28,6 +28,9 @@ router.patch('/:id/category', emailController.updateCategory);
 // Remove tag from email (admin only) - MUST be before /:id route
 router.delete('/:id/tag', authMiddleware, emailController.removeTag);
 
+// Delete email (admin only) - MUST be before /:id route
+router.delete('/:id', authMiddleware, emailController.deleteEmail);
+
 // Get email HTML content for iframe - MUST be before /:id route
 router.get('/:id/html', emailController.getHtml);
 
