@@ -5,23 +5,25 @@ services:
       NODE_ENV: production
       PORT: "3001"
 
+      # Frontend
       FRONTEND_URL: https://emailarchive.michaelroy.ca
+
+      # Authentication
       JWT_SECRET: ${JWT_SECRET}
 
+      # Gmail OAuth
       GMAIL_CLIENT_ID: ${GMAIL_CLIENT_ID}
       GMAIL_CLIENT_SECRET: ${GMAIL_CLIENT_SECRET}
       GMAIL_REDIRECT_URI: https://emailarchive.michaelroy.ca/api/auth/gmail/callback
 
+      # OpenAI
       OPENAI_API_KEY: ${OPENAI_API_KEY}
 
     volumes:
       - emailarchive_storage:/app/backend/storage
-      - emailarchive_config:/app/backend/config
 
-    expose:
-      - "3001"
+    ports:
+      - "3001:3001"
 
 volumes:
   emailarchive_storage:
-  emailarchive_config:
-
