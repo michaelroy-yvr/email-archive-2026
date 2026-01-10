@@ -10,6 +10,13 @@ COPY frontend/package*.json ./
 RUN npm install --legacy-peer-deps
 
 COPY frontend/ ./
+
+# Set environment variable for React build (will be overridden at runtime)
+ENV REACT_APP_API_URL=/api
+
+# Disable treating warnings as errors in production build
+ENV CI=false
+
 RUN npm run build
 
 
