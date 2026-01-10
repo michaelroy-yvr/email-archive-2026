@@ -25,6 +25,9 @@ router.get('/analytics/filtered', analyticsController.getFilteredAnalytics);
 // Update email category
 router.patch('/:id/category', emailController.updateCategory);
 
+// Toggle tag on email (admin only) - MUST be before /:id route
+router.post('/:id/tag/toggle', authMiddleware, emailController.toggleTag);
+
 // Remove tag from email (admin only) - MUST be before /:id route
 router.delete('/:id/tag', authMiddleware, emailController.removeTag);
 

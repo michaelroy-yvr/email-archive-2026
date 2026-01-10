@@ -10,6 +10,49 @@ A full-stack email archive application for managing and organizing Gmail emails 
 - 👥 **Bulk Operations**: Bulk assign emails by sender
 - 🔄 **Gmail Sync**: Sync emails from Gmail with customizable queries
 - 💾 **Image Archiving**: Download and store email images locally
+- ⌨️ **Keyboard Shortcuts**: Powerful keyboard navigation and shortcuts for efficiency
+- 🏷️ **Smart Tagging**: Tag emails as Graphic Email, Donation Matching, or Supporter Record
+- ❤️ **Favorites & Collections**: Community favorites and personal collections
+- 🔐 **User Authentication**: Secure login with admin and regular user roles
+
+## Keyboard Shortcuts
+
+### Navigation
+| Key | Action |
+|-----|--------|
+| `D` | Go to Dashboard |
+| `E` | Go to Emails view |
+| `O` | Go to Organizations view |
+| `A` | Go to Analytics view |
+| `J` or `↓` | Navigate to next email in list |
+| `K` or `↑` | Navigate to previous email in list |
+| `Enter` | Open selected email |
+| `Ctrl/Cmd + F` | Focus search box |
+| `Delete` or `Backspace` | Clear search (when search has content) |
+
+### Email View Actions
+| Key | Action |
+|-----|--------|
+| `M` | Toggle mobile preview mode |
+| `Shift + O` | Focus organization dropdown |
+
+### Category Assignment (Email View)
+| Key | Category |
+|-----|----------|
+| `1` | Fundraising 💰 |
+| `2` | Event 📅 |
+| `3` | Newsletter 📰 |
+| `4` | Share 📢 |
+| `5` | Action ✊ |
+| `6` | Other 📋 |
+
+### Tag Toggles (Admin Only - Email View)
+| Key | Tag |
+|-----|-----|
+| `G` | Toggle Graphic Email 🖼️ |
+| `T` | Toggle Donation Matching 🔄 |
+| `S` | Toggle Supporter Record 📊 |
+| `C` | Toggle Contest 🏆 |
 
 ## Tech Stack
 

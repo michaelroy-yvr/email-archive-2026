@@ -49,6 +49,10 @@ exports.list = async (req, res, next) => {
             whereClause.push('e.is_supporter_record = 1');
         }
 
+        if (req.query.isContest === 'true') {
+            whereClause.push('e.is_contest = 1');
+        }
+
         // Filter by date range
         if (req.query.startDate) {
             whereClause.push('e.date_received >= ?');
@@ -100,6 +104,7 @@ exports.list = async (req, res, next) => {
                 e.is_graphic_email,
                 e.has_donation_matching,
                 e.is_supporter_record,
+                e.is_contest,
                 e.classification_confidence,
                 o.name as organization_name,
                 o.type as organization_type
@@ -265,6 +270,53 @@ exports.updateCategory = async (req, res, next) => {
 };
 
 /**
+ * Toggle tag on email (admin only)
+ */
+exports.toggleTag = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { tag } = req.body;
+
+        // Check if user is admin
+        if (!req.user || !req.user.isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        // Validate tag
+        const validTags = ['is_graphic_email', 'has_donation_matching', 'is_supporter_record', 'is_contest'];
+        if (!validTags.includes(tag)) {
+            return res.status(400).json({ error: 'Invalid tag' });
+        }
+
+        // Get current value
+        const email = db.get(`SELECT ${tag} FROM emails WHERE id = ?`, [id]);
+        if (!email) {
+            return res.status(404).json({ error: 'Email not found' });
+        }
+
+        // Toggle the value (0 -> 1, 1 -> 0)
+        const newValue = email[tag] === 1 ? 0 : 1;
+
+        // Update the tag
+        db.run(`
+            UPDATE emails
+            SET ${tag} = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `, [newValue, id]);
+
+        res.json({
+            message: 'Tag toggled successfully',
+            tag,
+            value: newValue
+        });
+    } catch (error) {
+        console.error('Error in toggleTag:', error);
+        next(error);
+    }
+};
+
+/**
  * Remove tag from email (admin only)
  */
 exports.removeTag = async (req, res, next) => {
@@ -283,7 +335,7 @@ exports.removeTag = async (req, res, next) => {
         }
 
         // Validate tag
-        const validTags = ['is_graphic_email', 'has_donation_matching', 'is_supporter_record'];
+        const validTags = ['is_graphic_email', 'has_donation_matching', 'is_supporter_record', 'is_contest'];
         if (!validTags.includes(tag)) {
             console.log('Invalid tag:', tag);
             return res.status(400).json({ error: 'Invalid tag' });

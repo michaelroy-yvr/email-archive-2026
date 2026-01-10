@@ -156,6 +156,7 @@ class EmailProcessor {
 
     /**
      * Find organization by email domain
+     * Supports both exact domain matches and subdomain matches
      * @param {string} emailAddress - Email address to extract domain from
      * @returns {number|null} - Organization ID or null if not found
      */
@@ -167,14 +168,35 @@ class EmailProcessor {
                 return null;
             }
 
-            // Use case-insensitive comparison for domain matching
-            const organization = db.get(
-                'SELECT id FROM organizations WHERE LOWER(email_domain) = LOWER(?) LIMIT 1',
+            // First try exact match (case-insensitive)
+            let organization = db.get(
+                'SELECT id, email_domain FROM organizations WHERE LOWER(email_domain) = LOWER(?) LIMIT 1',
                 [domain]
             );
 
-            if (organization) {
-                console.log(`✓ Auto-assigned to organization ID ${organization.id} based on domain: ${domain}`);
+            // If no exact match, check for subdomain match
+            // e.g., if org domain is "ndp.ca" and email is from "action.ndp.ca"
+            if (!organization) {
+                // Get all organizations with domains
+                const allOrgs = db.all(
+                    'SELECT id, email_domain FROM organizations WHERE email_domain IS NOT NULL AND email_domain != ""'
+                );
+
+                // Check if the email domain is a subdomain of any organization domain
+                for (const org of allOrgs) {
+                    const orgDomain = org.email_domain.toLowerCase();
+                    const emailDomain = domain.toLowerCase();
+
+                    // Check if email domain ends with "." + org domain (subdomain match)
+                    // e.g., "action.ndp.ca" ends with ".ndp.ca"
+                    if (emailDomain.endsWith('.' + orgDomain)) {
+                        organization = org;
+                        console.log(`✓ Auto-assigned to organization ID ${organization.id} based on subdomain match: ${domain} -> ${org.email_domain}`);
+                        break;
+                    }
+                }
+            } else {
+                console.log(`✓ Auto-assigned to organization ID ${organization.id} based on exact domain match: ${domain}`);
             }
 
             return organization ? organization.id : null;
