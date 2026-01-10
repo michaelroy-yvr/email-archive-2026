@@ -1,0 +1,245 @@
+.collections-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.collections-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.collections-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 2rem;
+}
+
+.create-collection-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.create-collection-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.auth-required,
+.no-collections {
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.no-collections p {
+    color: #666;
+    margin: 0.5rem 0;
+}
+
+.no-collections .create-collection-btn {
+    margin-top: 1.5rem;
+}
+
+.collections-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.collection-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.collection-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.liked-emails-collection {
+    background: linear-gradient(135deg, #ffe8f0 0%, #fff3e0 100%);
+    border: 2px solid #e91e63;
+}
+
+.liked-emails-collection .email-count {
+    color: #e91e63;
+}
+
+.auto-badge {
+    background: #e91e63;
+    color: white;
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.no-custom-collections-hint {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: #666;
+}
+
+.no-custom-collections-hint p {
+    margin: 0 0 1rem 0;
+}
+
+.no-custom-collections-hint .create-collection-btn {
+    margin: 0;
+}
+
+.collection-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.collection-card-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2rem;
+    line-height: 1.3;
+    flex: 1;
+}
+
+.collection-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.edit-btn,
+.delete-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    transition: transform 0.2s;
+}
+
+.edit-btn:hover,
+.delete-btn:hover {
+    transform: scale(1.2);
+}
+
+.collection-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0.75rem 0;
+    line-height: 1.5;
+}
+
+.collection-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.email-count {
+    font-weight: 600;
+    color: #667eea;
+}
+
+.collection-date {
+    color: #999;
+}
+
+.view-emails-btn {
+    width: 100%;
+    background: #f5f5f5;
+    color: #667eea;
+    border: 1px solid #667eea;
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.view-emails-btn:hover:not(:disabled) {
+    background: #667eea;
+    color: white;
+}
+
+.view-emails-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #ddd;
+    color: #999;
+}
+
+.collection-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.collection-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.collection-form label {
+    font-weight: 500;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.collection-form input,
+.collection-form textarea {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.collection-form input:focus,
+.collection-form textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.collection-form textarea {
+    resize: vertical;
+}
+
+.submit-btn {
+    background: #667eea;
+    color: white;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background: #5568d3;
+}
