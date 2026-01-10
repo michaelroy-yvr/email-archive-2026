@@ -46,14 +46,18 @@ app.use('/api/organizations', require('./routes/organizations'));
 app.use('/api/contact', require('./routes/contact'));
 
 // Added 260109 to deploy on Coolify
-// Serve React build in production
-if (process.env.NODE_ENV === 'production') {
-  const buildPath = path.join(__dirname, '../../frontend/build');
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+if (process.env.NODE_ENV === "production") {
+  const buildPath = path.join(__dirname, "../../frontend/build");
   app.use(express.static(buildPath));
 
-  // SPA fallback (must come after API routes)
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(buildPath, 'index.html'));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(buildPath, "index.html"));
   });
 }
 
