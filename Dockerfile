@@ -2,8 +2,12 @@
 FROM node:20-alpine AS frontend
 WORKDIR /app/frontend
 
+# Install dependencies needed for npm packages
+RUN apk add --no-cache python3 make g++
+
 COPY frontend/package*.json ./
-RUN npm ci
+# Use npm install instead of npm ci for more flexibility
+RUN npm install --legacy-peer-deps
 
 COPY frontend/ ./
 RUN npm run build
