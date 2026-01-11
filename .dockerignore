@@ -1,8 +1,15 @@
+# Dependencies
 **/node_modules
+
+# Build outputs
 **/build
 **/.cache
+
+# OS files
 **/.DS_Store
 .git
+
+# Config files not needed in build
 .gitignore
 npm-debug.log
 Dockerfile
@@ -10,6 +17,26 @@ docker-compose.yml
 README.md
 .claude
 backup.sh
+
+# Docs
 /docs
+DEPLOY_TO_COOLIFY.md
+DEPLOYMENT.md
+
+# Runtime data (will be in volumes)
 **/logs
-**/storage
+backend/storage/
+frontend/build/
+
+# Database files
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+
+# Log files
+**/*.log
+
+# Environment files
+.env
+.env.*
+*.env
