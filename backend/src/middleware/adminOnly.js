@@ -1,7 +1,9 @@
-export default function adminOnly(req, res, next) {
+function adminOnly(req, res, next) {
   if (!req.user?.isAdmin) {
     return res.status(403).json({ error: "Admin access required" });
   }
   next();
 }
+
+module.exports = adminOnly;
 
