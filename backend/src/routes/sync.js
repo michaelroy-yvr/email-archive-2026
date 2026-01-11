@@ -1,4 +1,4 @@
-const auth = require('../middleware/auth');
+const { authMiddleware } = require('../middleware/auth');
 const adminOnly = require('../middleware/adminOnly');
 const express = require('express');
 const router = express.Router();
@@ -8,7 +8,7 @@ const syncController = require('../controllers/syncController');
 // POST /api/sync/start?maxEmails=10&query=category:promotions
 router.post(
 	'/start',
-	auth,
+	authMiddleware,
 	adminOnly,
 	syncController.startSync
 );
@@ -16,7 +16,7 @@ router.post(
 // Get sync status
 router.get(
 	'/status',
-	auth,
+	authMiddleware,
 	adminOnly,
 	syncController.getSyncStatus
 );
