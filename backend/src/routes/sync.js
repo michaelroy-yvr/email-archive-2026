@@ -1,5 +1,5 @@
-import auth from "../middleware/auth.js";
-import adminOnly from "../middleware/adminOnly.js";
+const auth = require('../middleware/auth');
+const adminOnly = require('../middleware/adminOnly');
 const express = require('express');
 const router = express.Router();
 const syncController = require('../controllers/syncController');
