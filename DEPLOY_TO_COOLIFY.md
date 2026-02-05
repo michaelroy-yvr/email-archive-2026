@@ -29,6 +29,8 @@ Generate a strong JWT secret:
 
 ```bash
 openssl rand -base64 32
+0cYdM1atJd4grag8NdSgcCxlf3KGI9IGSivdG6LZ/hk=
+
 ```
 
 Save this output - you'll need it in the next step.

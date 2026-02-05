@@ -60,16 +60,6 @@ app.use('/api/sync', require('./routes/sync'));
 app.use('/api/organizations', require('./routes/organizations'));
 app.use('/api/contact', require('./routes/contact'));
 
-// Serve frontend in production
-if (process.env.NODE_ENV === "production") {
-  const buildPath = path.join(__dirname, "../../frontend/build");
-  app.use(express.static(buildPath));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(buildPath, "index.html"));
-  });
-}
-
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error('Error:', err);

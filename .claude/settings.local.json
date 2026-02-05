@@ -27,7 +27,15 @@
       "Bash(lsof:*)",
       "Bash(npm run dev:*)",
       "Bash(git push:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(docker build:*)",
+      "Bash(npm run build:*)",
+      "Bash(git -C /Users/michaelroy/Development/email_archive_2026 remote -v)",
+      "Bash(git -C /Users/michaelroy/Development/email_archive_2026 status --porcelain)",
+      "Bash(git -C /Users/michaelroy/Development/email_archive_2026 ls-files)",
+      "Bash(git -C /Users/michaelroy/Development/email_archive_2026 log --all --pretty=format: --name-only)",
+      "Bash(git -C /Users/michaelroy/Development/email_archive_2026 log --all --pretty=format:\"%h %s\")",
+      "Bash(gh run:*)"
     ]
   }
 }
