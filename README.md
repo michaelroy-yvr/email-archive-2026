@@ -182,6 +182,13 @@ node bulk-sync.js 50 "is:unread"                   # Sync 50 unread emails
 
 See [BACKUP.md](./BACKUP.md) for detailed backup instructions.
 
+## Future Features
+
+- **Automatic Email Retrieval**: Scheduled automatic retrieval and processing of new emails
+- **Improved Auto-Categorization**: Enhanced automatic categorization of emails using content analysis
+- **Public Suggestion Form**: Allow public users to suggest email lists to subscribe to
+- **Email Forwarding Intake**: Allow users to forward emails they received to be added to the archive
+
 ## License
 
 Private project - All rights reserved

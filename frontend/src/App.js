@@ -1433,7 +1433,7 @@ function App() {
       {/* Footer */}
       <footer className="app-footer">
         <p>
-          Created by <a href="https://michaelroy.ca" target="_blank" rel="noopener noreferrer">Michael Roy</a>, January 2026
+          Created by <a href="https://michaelroy.ca" target="_blank" rel="noopener noreferrer">Michael Roy</a>, January 2026 | <a href="https://github.com/michaelroy-yvr/email-archive-2026" target="_blank" rel="noopener noreferrer">GitHub</a>
         </p>
       </footer>
     </div>
