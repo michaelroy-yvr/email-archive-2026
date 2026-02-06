@@ -19,11 +19,11 @@ function TopSenders({ data }) {
         );
     }
 
-    // Format data for chart - use email address as primary identifier
+    // Format data for chart - use sender name as primary identifier
     const chartData = data.map(sender => ({
-        name: sender.from_address,
-        count: sender.count,
-        nameCount: sender.name_count || 1
+        name: sender.sender_name,
+        email: sender.from_address,
+        count: sender.count
     }));
 
     return (
@@ -50,12 +50,8 @@ function TopSenders({ data }) {
                                 return (
                                     <div className="custom-tooltip">
                                         <p><strong>{data.name}</strong></p>
+                                        <p style={{ fontSize: '0.85em', color: '#666' }}>{data.email}</p>
                                         <p>Emails: {data.count}</p>
-                                        {data.nameCount > 1 && (
-                                            <p style={{ fontSize: '0.85em', color: '#999' }}>
-                                                {data.nameCount} sender names
-                                            </p>
-                                        )}
                                     </div>
                                 );
                             }

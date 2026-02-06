@@ -232,6 +232,49 @@
     color: #d32f2f;
 }
 
+/* Sender Names Summary */
+.sender-names-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.sender-name-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.sender-name-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.sender-name {
+    font-weight: 600;
+    color: #333;
+}
+
+.sender-email {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.sender-count {
+    background: #667eea;
+    color: white;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .org-detail-modal {

@@ -402,11 +402,11 @@ exports.getStats = async (req, res, next) => {
             `),
             topSenders: db.all(`
                 SELECT
+                    COALESCE(NULLIF(from_name, ''), from_address) as sender_name,
                     from_address,
-                    COUNT(DISTINCT from_name) as name_count,
                     COUNT(*) as count
                 FROM emails
-                GROUP BY from_address
+                GROUP BY sender_name, from_address
                 ORDER BY count DESC
                 LIMIT 10
             `)

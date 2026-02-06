@@ -246,17 +246,17 @@ exports.getFilteredAnalytics = async (req, res, next) => {
             ${where}
         `, params);
 
-        // 2. Count by sender address (grouped by email address)
+        // 2. Count by sender name (grouped by name AND address)
         const bySender = db.all(`
             SELECT
+                COALESCE(NULLIF(e.from_name, ''), e.from_address) as sender_name,
                 e.from_address,
-                COUNT(DISTINCT e.from_name) as name_count,
-                GROUP_CONCAT(DISTINCT e.from_name) as sender_names,
+                o.name as organization_name,
                 COUNT(*) as count
             FROM emails e
             LEFT JOIN organizations o ON e.organization_id = o.id
             ${where}
-            GROUP BY e.from_address
+            GROUP BY sender_name, e.from_address
             ORDER BY count DESC
             LIMIT 20
         `, params);

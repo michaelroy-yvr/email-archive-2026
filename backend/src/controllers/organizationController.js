@@ -70,16 +70,15 @@ exports.getStats = async (req, res, next) => {
             return res.status(404).json({ error: 'Organization not found' });
         }
 
-        // Get top senders for this organization
+        // Get top senders for this organization (grouped by sender name)
         const topSenders = db.all(`
             SELECT
+                COALESCE(NULLIF(from_name, ''), from_address) as sender_name,
                 from_address,
-                COUNT(DISTINCT from_name) as name_count,
-                GROUP_CONCAT(DISTINCT from_name) as sender_names,
                 COUNT(*) as count
             FROM emails
             WHERE organization_id = ?
-            GROUP BY from_address
+            GROUP BY sender_name, from_address
             ORDER BY count DESC
             LIMIT 10
         `, [id]);

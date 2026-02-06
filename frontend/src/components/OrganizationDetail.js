@@ -188,7 +188,7 @@ function OrganizationDetail({ organizationId, onClose, onViewEmails }) {
                                 <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
                                 <XAxis type="number" tick={{ fontSize: 12 }} />
                                 <YAxis
-                                    dataKey="from_address"
+                                    dataKey="sender_name"
                                     type="category"
                                     width={200}
                                     tick={{ fontSize: 11 }}
@@ -199,18 +199,9 @@ function OrganizationDetail({ organizationId, onClose, onViewEmails }) {
                                             const data = payload[0].payload;
                                             return (
                                                 <div className="custom-tooltip">
-                                                    <p><strong>{data.from_address}</strong></p>
+                                                    <p><strong>{data.sender_name}</strong></p>
+                                                    <p style={{ fontSize: '0.85em', color: '#666' }}>{data.from_address}</p>
                                                     <p>Emails: {data.count}</p>
-                                                    {data.name_count > 1 && (
-                                                        <p style={{ fontSize: '0.85em', color: '#999' }}>
-                                                            {data.name_count} sender names
-                                                        </p>
-                                                    )}
-                                                    {data.sender_names && (
-                                                        <p style={{ fontSize: '0.8em', color: '#666', marginTop: '0.5rem' }}>
-                                                            {data.sender_names}
-                                                        </p>
-                                                    )}
                                                 </div>
                                             );
                                         }
@@ -220,6 +211,24 @@ function OrganizationDetail({ organizationId, onClose, onViewEmails }) {
                                 <Bar dataKey="count" fill="#667eea" />
                             </BarChart>
                         </ResponsiveContainer>
+                    </div>
+                )}
+
+                {/* Sender Names Summary */}
+                {topSenders && topSenders.length > 0 && (
+                    <div className="org-chart-section">
+                        <h3>📋 Sender Names Summary</h3>
+                        <div className="sender-names-list">
+                            {topSenders.map((sender, index) => (
+                                <div key={index} className="sender-name-item">
+                                    <div className="sender-name-info">
+                                        <span className="sender-name">{sender.sender_name}</span>
+                                        <span className="sender-email">{sender.from_address}</span>
+                                    </div>
+                                    <span className="sender-count">{sender.count} emails</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
 

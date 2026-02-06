@@ -323,7 +323,7 @@ function Analytics({ organizations, onApplyFiltersToEmails }) {
                                         <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
                                         <XAxis type="number" tick={{ fontSize: 12 }} />
                                         <YAxis
-                                            dataKey="from_address"
+                                            dataKey="sender_name"
                                             type="category"
                                             width={220}
                                             tick={{ fontSize: 11 }}
@@ -334,13 +334,14 @@ function Analytics({ organizations, onApplyFiltersToEmails }) {
                                                     const data = payload[0].payload;
                                                     return (
                                                         <div className="custom-tooltip">
-                                                            <p><strong>{data.from_address}</strong></p>
-                                                            <p>Emails: {data.count}</p>
-                                                            {data.name_count > 1 && (
-                                                                <p style={{ fontSize: '0.85em', color: '#999' }}>
-                                                                    {data.name_count} sender names
+                                                            <p><strong>{data.sender_name}</strong></p>
+                                                            <p style={{ fontSize: '0.85em', color: '#666' }}>{data.from_address}</p>
+                                                            {data.organization_name && (
+                                                                <p style={{ fontSize: '0.85em', color: '#667eea' }}>
+                                                                    {data.organization_name}
                                                                 </p>
                                                             )}
+                                                            <p>Emails: {data.count}</p>
                                                         </div>
                                                     );
                                                 }
