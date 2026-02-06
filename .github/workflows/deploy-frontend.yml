@@ -31,7 +31,7 @@ jobs:
       - name: Build
         working-directory: frontend
         env:
-          REACT_APP_API_URL: https://api.emailarchive.michaelroy.ca/api
+          REACT_APP_API_URL: https://emailarchive-api.michaelroy.ca/api
           CI: false
         run: npm run build
 
