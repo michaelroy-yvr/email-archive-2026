@@ -35,6 +35,7 @@ function App() {
   const [userCollections, setUserCollections] = useState([]);
   const [showAddToCollectionModal, setShowAddToCollectionModal] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '' });
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   // Filter state
   const [filters, setFilters] = useState({
@@ -54,6 +55,7 @@ function App() {
   useEffect(() => {
     checkAuth();
     fetchOrganizations(); // Needed for filters across multiple views
+    fetchLastUpdated();
     // Don't load emails/senders until user navigates to emails view
   }, []);
 
@@ -229,6 +231,15 @@ function App() {
       setOrganizations(response.data);
     } catch (error) {
       console.error('Error fetching organizations:', error);
+    }
+  };
+
+  const fetchLastUpdated = async () => {
+    try {
+      const response = await emailsAPI.getStats();
+      setLastUpdated(response.data.lastUpdated);
+    } catch (error) {
+      console.error('Error fetching last updated:', error);
     }
   };
 
@@ -1434,6 +1445,11 @@ function App() {
       <footer className="app-footer">
         <p>
           Created by <a href="https://michaelroy.ca" target="_blank" rel="noopener noreferrer">Michael Roy</a>, January 2026 | <a href="https://github.com/michaelroy-yvr/email-archive-2026" target="_blank" rel="noopener noreferrer">GitHub</a>
+          {lastUpdated && (
+            <span className="last-updated">
+              {' '}| Last updated {new Date(lastUpdated).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })} at {new Date(lastUpdated).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })}
+            </span>
+          )}
         </p>
       </footer>
     </div>

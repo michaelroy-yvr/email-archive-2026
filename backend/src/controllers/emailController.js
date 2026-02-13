@@ -387,11 +387,13 @@ exports.getSenders = async (req, res, next) => {
  */
 exports.getStats = async (req, res, next) => {
     try {
+        const lastEmail = db.get('SELECT date_received FROM emails ORDER BY date_received DESC LIMIT 1');
         const stats = {
             totalEmails: db.get('SELECT COUNT(*) as count FROM emails').count,
             totalImages: db.get('SELECT COUNT(*) as count FROM images WHERE download_success = 1').count,
             failedImages: db.get('SELECT COUNT(*) as count FROM images WHERE download_success = 0').count,
             storageUsed: db.get('SELECT SUM(file_size) as size FROM images WHERE download_success = 1').size || 0,
+            lastUpdated: lastEmail?.date_received || null,
             emailsByOrganizationType: db.all(`
                 SELECT
                     o.type,

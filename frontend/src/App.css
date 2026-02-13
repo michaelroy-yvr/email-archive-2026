@@ -1214,6 +1214,11 @@ body {
   text-decoration: underline;
 }
 
+.app-footer .last-updated {
+  font-size: 0.75rem;
+  color: #999;
+}
+
 /* Toast Notification */
 .toast-notification {
   position: fixed;
